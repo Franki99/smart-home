@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:async'; // Import this for StreamSubscription
+import 'package:smart_home/services/notification_service.dart';
+import 'dart:async'; // Import your notification service
 
 class MotionDetectionPage extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class _MotionDetectionPageState extends State<MotionDetectionPage> {
   @override
   void initState() {
     super.initState();
+    NotificationService().init(); // Initialize the notification service
   }
 
   void _toggleDataCollection() {
@@ -34,6 +36,16 @@ class _MotionDetectionPageState extends State<MotionDetectionPage> {
             _accelXData.add(FlSpot(_dataIndex.toDouble(), event.x));
             _accelYData.add(FlSpot(_dataIndex.toDouble(), event.y));
             _accelZData.add(FlSpot(_dataIndex.toDouble(), event.z));
+
+            // Trigger notification on significant motion detection
+            if (event.x.abs() > 10 ||
+                event.y.abs() > 10 ||
+                event.z.abs() > 10) {
+              NotificationService().showNotification(
+                'Motion Detected',
+                'Significant motion detected in the environment!',
+              );
+            }
 
             // Keep the data limited to the last 50 points
             if (_accelXData.length > 50) {
